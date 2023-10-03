@@ -11,13 +11,14 @@ namespace Vertical_Slice_Architecture.Features.MusicOps;
 
 public class GetMusics
 {
-    public class Response {
+    public class Response
+    {
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Lyrics { get; set; }
 
     }
-    public class Query:IQuery<AppResponse<List<Response>>>
+    public class Query : IQuery<AppResponse<List<Response>>>
     {
 
     }
@@ -33,7 +34,7 @@ public class GetMusics
         public async Task<AppResponse<List<Response>>> Handle(Query request, CancellationToken cancellationToken)
         {
             var musics= await _dbContext.Musics.AsNoTracking().ToListAsync(cancellationToken);
-            return AppResponse<List<Response>>.Success(musics.Adapt<List<Response>>(),200);
+            return AppResponse<List<Response>>.Success(musics.Adapt<List<Response>>(), 200);
         }
     }
 

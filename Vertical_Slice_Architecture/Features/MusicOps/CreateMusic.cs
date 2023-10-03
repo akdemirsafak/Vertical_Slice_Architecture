@@ -14,7 +14,7 @@ namespace Vertical_Slice_Architecture.Features.MusicOps;
 public class CreateMusic
 {
     public record Request(string Name, string Lyrics);
-    public class Command:ICommand<AppResponse<NoContent>>
+    public class Command : ICommand<AppResponse<NoContent>>
     {
         public Request Model { get; }
 
@@ -34,19 +34,23 @@ public class CreateMusic
 
         public async Task<AppResponse<NoContent>> Handle(Command request, CancellationToken cancellationToken)
         {
+            Validator validator=new ();
+            validator.ValidateAndThrow(request);
             var entity= request.Model.Adapt<Music>();
-            
+
 
             await _dbContext.Musics.AddAsync(entity);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return AppResponse<NoContent>.Success(201);
         }
     }
-    public class Validator:AbstractValidator<Command>
+    public class Validator : AbstractValidator<Command>
     {
         public Validator()
         {
-            RuleFor(x=>x.Model.Name).NotNull().NotEmpty();
+            RuleFor(x => x.Model.Name)
+                .NotNull().WithMessage("Music name cannot null")
+                    .NotEmpty().WithMessage("Music name cannot empty.");
         }
     }
 
@@ -57,8 +61,9 @@ public class CreateMusicEndpoint : CustomBaseController
     {
     }
     [HttpPost]
-    public async Task<IActionResult> CreateMusic(Request request) { 
-       return CreateActionResult(await  _mediator.Send(new Command(request)));
+    public async Task<IActionResult> CreateMusic(Request request)
+    {
+        return CreateActionResult(await _mediator.Send(new Command(request)));
     }
 }
 
